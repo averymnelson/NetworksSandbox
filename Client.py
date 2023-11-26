@@ -1,25 +1,18 @@
 import socket
 
+# Set up client socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(('localhost', 12345))  # Replace 'localhost' with server IP
 
-def menu():
-    print("**********Welcome to XYZ ATM********")
-    print("Press 1 for Deposit.")
-    print("Press 2 for Withdrawal")
-    print("Press 3 for Account Balance")
-    print("Press 4 to Quit")
-    host = socket.gethostname()
-    port = 12200
-    s = socket.socket()
-    s.connect((host, port))
-    while True:
-        menu()
-        print("What would you like to do: ")
-        userchoice = input()
-        msg = str.encode(str(userchoice), 'utf-8')
-        s.send(msg)
-        print(s.recv(1024))
-        userchoice = input()
-        msg = str.encode(str(userchoice), 'utf-8')
-        s.send(msg)
-        print(s.recv(1024))
-    s.close
+while True:
+    # User input for command
+    command = input("Enter command (DEPOSIT/WITHDRAW/BALANCE): ")
+
+    # Send command to server
+    client_socket.send(command.encode())
+
+    # Receive and print server response
+    response = client_socket.recv(1024).decode()
+    print(response)
+
+client_socket.close()
