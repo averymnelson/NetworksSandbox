@@ -2,11 +2,17 @@ import socket
 
 # Initialize the server socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('localhost', 12345))  # Replace 'localhost' with your IP
-server_socket.listen(1)
-
+host = "127.0.0.1"
+port =14200
+buffer_size=1024
+server_socket.bind(host, port)  # Replace 'localhost' with your IP
+server_socket.listen()
+print(f"Server at {host}:{port} listening")
+clientS, clientA = server_socket.accept()
 # Initialize bank account balance
 balance = 100
+client_socket, addr = server_socket.accept()
+print(f"Connection from {addr}")
 
 def deposit(amount):
     global balance
@@ -27,20 +33,23 @@ def check_balance():
 
 while True:
     # Accept incoming connections
-    client_socket, addr = server_socket.accept()
-    print(f"Connection from {addr}")
 
     # Receive client request
-    request = client_socket.recv(1024).decode()
+    data = client_socket.recv(1024).decode()
 
     # Process client request and send response
-    if request.startswith("DEPOSIT"):
-        amount = float(input("Enter deposit amount: "))
-        response = deposit(amount)
-    elif request.startswith("WITHDRAW"):
-        amount = float(input("Enter withdrawal amount: "))
+    if data.startswith("DEPOSIT"):
+        amount = int(data.split()[1])
+        if amount>balance:
+            response = "Insufficient funds"
+        else:
+            balance += amount
+            response = deposit(amount)
+    elif data.startswith("WITHDRAW"):
+        amount = int(data.split()[1])
+        balance -=amount
         response = withdraw(amount)
-    elif request == "BALANCE":
+    elif data == "BALANCE":
         response = check_balance()
     else:
         response = "Invalid request"
@@ -48,4 +57,5 @@ while True:
     client_socket.send(response.encode())
 
     # Close connection
-    client_socket.close()
+client_socket.close()
+server_socket.close()

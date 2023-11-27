@@ -9,10 +9,10 @@ while True:
     command = input("Enter command (DEPOSIT/WITHDRAW/BALANCE): ")
 
     # Send command to server
-    client_socket.send(command.encode())
+    client_socket.send(command.encode('utf-8'))
 
     # Receive and print server response
-    response = client_socket.recv(1024).decode()
+    response = client_socket.recv(1024).decode('utf-8')
     print(response)
 
 client_socket.close()
