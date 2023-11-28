@@ -2,7 +2,7 @@ import socket
 
 # Set up client socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('localhost', 12345))  # Replace 'localhost' with server IP
+client_socket.connect(('localhost', 14200))  # Replace 'localhost' with server IP
 
 while True:
     # User input for command
