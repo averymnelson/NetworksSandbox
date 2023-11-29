@@ -1,62 +1,39 @@
 import socket
 
-# Initialize the server socket
+# Initialize the balance
+balance = 100.0
+
+# Create a socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "127.0.0.1"
-port = 14200
-buffer_size = 1024
-server_socket.bind((host, port))  # Replace 'localhost' with your IP
-server_socket.listen()
-print(f"Server at {host}:{port} listening")
-# Initialize bank account balance
-balance = 100
-client_socket, addr = server_socket.accept()
-print(f"Connection from {addr}")
+server_socket.bind(("127.0.0.1", 8888))  # Replace 'localhost' with your server IP if needed
+server_socket.listen(1)
 
-
-def deposit(amt):
-    global balance
-    return f"Deposited ${amt}. Current balance: ${balance}"
-
-
-def withdraw(amt):
-    global balance
-    if amount > balance:
-        return "Insufficient funds"
-    else:
-        return f"Withdrew ${amt}. Current balance: ${balance}"
-
-
-def check_balance():
-    global balance
-    return f"Current balance: ${balance}"
-
+print("Server started. Waiting for a connection...")
 
 while True:
     # Accept incoming connections
+    client_socket, addr = server_socket.accept()
+    print("Connection from", addr)
 
-    # Receive client request
-    data = client_socket.recv(1024).decode()
+    while True:
+        data = client_socket.recv(1024).decode()
 
-    # Process client request and send response
-    if data.startswith("DEPOSIT"):
-        amount = int(data.split()[1])
-        if amount > balance:
-            response = "Insufficient funds"
-        else:
+        if not data:
+            break
+
+        # Process client requests
+        if data == 'check_balance':
+            client_socket.send(str(balance).encode())
+        elif data.startswith('withdraw'):
+            amount = float(data.split(' ')[1])
+            if balance >= amount:
+                balance -= amount
+                client_socket.send("Withdrawal successful".encode())
+            else:
+                client_socket.send("Insufficient funds".encode())
+        elif data.startswith('deposit'):
+            amount = float(data.split(' ')[1])
             balance += amount
-            response = deposit(amount)
-    elif data.startswith("WITHDRAW"):
-        amount = int(data.split()[1])
-        balance -= amount
-        response = withdraw(amount)
-    elif data == "BALANCE":
-        response = check_balance()
-    else:
-        response = "Invalid request"
+            client_socket.send("Deposit successful".encode())
 
-    client_socket.send(response.encode())
-
-    # Close connection
-client_socket.close()
-server_socket.close()
+    client_socket.close()
