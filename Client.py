@@ -1,26 +1,37 @@
+# Avery Nelson
+# 010920903
+# CN CSCE 4753 HW
+
 import socket
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('localhost', 8888))  # Replace 'localhost' with your server IP if needed
+PORT = 14200
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientSocket.connect(('localhost', PORT))  # Replace 'localhost' with your server IP if needed
 
-while True:
-    print("\n1. Check balance\n2. Deposit money\n3. Withdraw money\n4. Exit")
-    choice = input("Enter your choice (1-4): ")
+while True: 
+    #command = input("Enter command (balance/withdraw/deposit): ")
+    print("Options:\nDeposit\nWithdraw\nBalance\nQuit")
 
-    if choice == '1':
-        client_socket.send('check_balance'.encode())
-        response = client_socket.recv(1024).decode()
-        print("Balance:", response)
-    elif choice == '2':
-        amount = float(input("Enter amount to deposit: "))
-        client_socket.send(f"deposit {amount}".encode())
-        print(client_socket.recv(1024).decode())
-    elif choice == '3':
-        amount = float(input("Enter amount to withdraw: "))
-        client_socket.send(f"withdraw {amount}".encode())
-        print(client_socket.recv(1024).decode())
-    elif choice == '4':
-        client_socket.close()
+    choice = input("Enter your selection: ")
+
+    if choice == "Deposit":
+        amount = int(input("Enter the deposit amount in whole dollars: "))
+        command = f"deposit {amount}"
+    elif choice == "Withdraw":
+        amount = int(input("Enter the withdrawal amount in whole dollars: "))
+        command = f"withdraw {amount}"
+    elif choice == "Balance":
+        command = "check_balance"
+    elif choice == "Quit":
+        print("Exiting the program. Goodbye.")
         break
     else:
-        print("Invalid choice")
+        print("Invalid choice. Please try again.")
+        continue
+    
+    clientSocket.send(command.encode('utf-8'))
+    response = clientSocket.recv(1024).decode('utf-8')
+    print(response)
+    print("\n\n")
+
+clientSocket.close()
